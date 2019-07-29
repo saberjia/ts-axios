@@ -10,12 +10,17 @@ export default function dispatchRequest(
 ): AxiosPromise {
   throwIfCancellationRequested(config)
   processConfig(config)
-  // config: AxiosRequestConfig
-  // ): AxiosPromise {
-  //   processConfig(config)
-  return xhr(config).then(res => {
-    return transformResponseData(res)
-  })
+  return xhr(config).then(
+    res => {
+      return transformResponseData(res)
+    },
+    e => {
+      if (e && e.response) {
+        e.response = transformResponseData(e.response)
+      }
+      return Promise.reject(e)
+    }
+  )
 }
 function throwIfCancellationRequested(config: AxiosRequestConfig): void {
   if (config.cancelToken) {
